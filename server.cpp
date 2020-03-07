@@ -49,8 +49,8 @@ int main(int argc, char const * argv[])
         exit(EXIT_FAILURE);
       }
 
-      char buffer[4096] = {0};
-      int valread = read( accept_sock, buffer, 4096);
+      char buffer[2056] = {0};
+      int valread = read( accept_sock, buffer, 2056);
 
       //Parse out file name
       char ch = '/';
@@ -67,19 +67,48 @@ int main(int argc, char const * argv[])
       if ( access(file_name, F_OK) != -1)
       {
         printf("YOUR FILE EXISTS\n");
-        //Add Contents
       } else {
         printf("YOUR FILE DOESN'T EXIST\n");
         FILE *file_pointer;
         file_pointer = fopen(file_name,"w");
+        //Parse Out File Contents
+        ch = '~';
+        char *start_file_count = strchr(buffer,ch);
+        int start_file_content = (start_file_count - buffer +1);
+        printf("______________________________________________\n");
+        start_file_content = start_file_content + 15;
+        printf("%d\n", start_file_content);
+        //printf("%i",start_file_content);
+        //int end_file_content = start_file_content + 109;
+        //char *file_data = strndup(buffer - start_file_content, 109);
+        char *file_data;
+        for (int i = 0; i < 109; i++)
+        {
+          //char *data = &buffer[start_file_content + i];
+          //fputs(data,file_pointer);
+          printf("%c", buffer[start_file_content + i]);
+        }
+        int file_length;
+        file_length = 109;
+        for(int i = 0; i < 109; i++)
+        {
+          if (strncmp(&buffer[start_file_content + i], "\"",sizeof(char)) == 0)
+          {
+            file_length = i;
+            break;
+          }
+        }
+        //Decode base 64 data 
+        fwrite(&buffer[start_file_content], sizeof(char),file_length,file_pointer);
+
         if (file_pointer == NULL)
         {
           printf("UNABLE TO WRITE FILE");
           exit(EXIT_FAILURE);
         }
-        char data[100000000];
         //will write sections of the cookie data to a buffer and then to a file.
-        fputs(file_name,file_pointer);
+        //printf("%s",file_data);
+        //fputs(file_data,file_pointer);
         fclose(file_pointer);
         printf("FILE WRITE FINISEHD\n");
 
